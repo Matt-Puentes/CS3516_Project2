@@ -58,11 +58,11 @@ void A_output(struct msg message) {
 		new_pkt->payload[i] = 0;
 	strncpy(new_pkt->payload, message.data, MESSAGE_LENGTH);
 
-	if(TraceLevel >= 2){
+	//if(TraceLevel >= 2){
 		printf("\e[32m");
 		printf("new msg: %s seq:%d", new_pkt->payload, new_pkt->seqnum);
 		printf("\e[0m\n");
-	}
+	//}
 
 	//checksum
 	new_pkt->checksum = checksum(*new_pkt);
@@ -263,15 +263,18 @@ void B_init() {
  * This function generates an int as a checksum for the given packet.
  */
 int checksum(struct pkt pkt){
+	int hasaB = FALSE;
 	int checksum = 0;
 	checksum +=  24 * pkt.seqnum + 2;
 	checksum +=  25 * pkt.acknum + 3;
 	//By iterating through the payload, the checksum effectivley stores each byte's data AND it's position.
 	for(int i = 2; i <= 21; i++){
 		checksum += (i * 50) * ((int) pkt.payload[i-2]);
+		if(pkt.payload[i-2] == 'b')
+			hasaB = TRUE;
 	}
 	//This fixed a very specific error. I have no idea why.
-	if(pkt.payload[0] == 'b')
+	if(hasaB)
 		checksum = checksum * -1;
 
 	return checksum;
