@@ -58,11 +58,11 @@ void A_output(struct msg message) {
 		new_pkt->payload[i] = 0;
 	strncpy(new_pkt->payload, message.data, MESSAGE_LENGTH);
 
-	//if(TraceLevel >= 2){
+	if(TraceLevel >= 2){
 		printf("\e[32m");
 		printf("new msg: %s seq:%d", new_pkt->payload, new_pkt->seqnum);
 		printf("\e[0m\n");
-	//}
+	}
 
 	//checksum
 	new_pkt->checksum = checksum(*new_pkt);
@@ -273,7 +273,7 @@ int checksum(struct pkt pkt){
 		if(pkt.payload[i-2] == 'b')
 			hasaB = TRUE;
 	}
-	//This fixed a very specific error. I have no idea why.
+	//This fixed a very specific error where b-to-d switches aren't caught by the checksum. I have no idea why.
 	if(hasaB)
 		checksum = checksum * -1;
 
