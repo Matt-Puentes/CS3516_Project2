@@ -35,6 +35,7 @@ void sendPktFromQueue();
  * in-order, and correctly, to the receiving side upper layer.
  */
 void A_output(struct msg message) {
+	int i;
 	if(TraceLevel >=2)
 		printf("Generating Packet for AEntity\n");
 	if(TraceLevel >=3)
@@ -54,7 +55,7 @@ void A_output(struct msg message) {
 	new_pkt->acknum = 0;
 
 	//payload
-	for(int i = 0; i < MESSAGE_LENGTH; i++)
+	for(i = 0; i < MESSAGE_LENGTH; i++)
 		new_pkt->payload[i] = 0;
 	strncpy(new_pkt->payload, message.data, MESSAGE_LENGTH);
 
@@ -167,10 +168,11 @@ void A_timerinterrupt() {
 /* The following routine will be called once (only) before any other    */
 /* entity A routines are called. You can use it to do any initialization */
 void A_init() {
+	int i;
 	//initialize the last sent pkt and last seqnum
 	last_sent_pkt.seqnum = 1;
 	last_sent_pkt.acknum = 0;
-	for(int i = 0; i < MESSAGE_LENGTH; i++){
+	for(i = 0; i < MESSAGE_LENGTH; i++){
 		last_sent_pkt.payload[i] = 0;
 	}
 	last_sent_pkt.checksum = 0;
@@ -190,6 +192,7 @@ void A_init() {
  * packet is the (possibly corrupted) packet sent from the A-side.
  */
 void B_input(struct pkt pkt) {
+	int i;
 	//Firstly, check if the recived packet is corrupt.
 	int corrupt = isPktCorrupt(pkt);
 	
@@ -208,7 +211,7 @@ void B_input(struct pkt pkt) {
 
 		//Send the message to Layer5
 		struct msg msg;
-		for(int i = 0; i < MESSAGE_LENGTH; i++)
+		for(i = 0; i < MESSAGE_LENGTH; i++)
 			msg.data[i] = 0;
 
 		strncpy(msg.data, pkt.payload, MESSAGE_LENGTH);
@@ -263,12 +266,13 @@ void B_init() {
  * This function generates an int as a checksum for the given packet.
  */
 int checksum(struct pkt pkt){
+	int i;
 	int hasaB = FALSE;
 	int checksum = 0;
 	checksum +=  24 * pkt.seqnum + 2;
 	checksum +=  25 * pkt.acknum + 3;
 	//By iterating through the payload, the checksum effectivley stores each byte's data AND it's position.
-	for(int i = 2; i <= 21; i++){
+	for(i = 2; i <= 21; i++){
 		checksum += (i * 50) * ((int) pkt.payload[i-2]);
 		if(pkt.payload[i-2] == 'b')
 			hasaB = TRUE;
